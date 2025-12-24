@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Landing Page | Contact WhatsApp</title>
+    <meta name="description" content="Page de présentation avec option de contact WhatsApp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        /* Styles pour l'iframe Canva - Plein écran */
+        .canva-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: #000;
+        }
+        
+        .canva-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        /* Bouton WhatsApp amélioré */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            animation: float 3s ease-in-out infinite, pulse 2s ease-in-out infinite 1s;
+            overflow: hidden;
+            border: 3px solid white;
+        }
+        
+        .whatsapp-float:hover {
+            transform: scale(1.15) translateY(-5px);
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.7);
+            background: linear-gradient(135deg, #128C7E, #25D366);
+        }
+        
+        .whatsapp-float:active {
+            transform: scale(0.95);
+            transition: transform 0.1s;
+        }
+        
+        .whatsapp-float i {
+            font-size: 34px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        
+        .whatsapp-float:hover i {
+            transform: scale(1.1);
+        }
+        
+        /* Badge de notification */
+        .whatsapp-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #FF4757;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: badge-pulse 1.5s infinite;
+            border: 2px solid white;
+        }
+        
+        /* Tooltip au survol */
+        .whatsapp-tooltip {
+            position: absolute;
+            right: 85px;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .whatsapp-float:hover .whatsapp-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .whatsapp-tooltip:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -6px;
+            transform: translateY(-50%);
+            border-width: 6px 0 6px 6px;
+            border-style: solid;
+            border-color: transparent transparent transparent rgba(0, 0, 0, 0.85);
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
+            50% { box-shadow: 0 6px 25px rgba(37, 211, 102, 0.8); }
+        }
+        
+        @keyframes badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Indicateur de chargement */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e0e0e0;
+            border-top: 5px solid #25D366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Bouton plein écran */
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            z-index: 999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .fullscreen-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .whatsapp-float {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .whatsapp-float i {
+                font-size: 28px;
+            }
+            
+            .whatsapp-badge {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+            
+            .fullscreen-btn {
+                width: 45px;
+                height: 45px;
+                bottom: 20px;
+                left: 20px;
+                font-size: 18px;
+            }
+            
+            .whatsapp-tooltip {
+                display: none; /* Cacher le tooltip sur mobile */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .whatsapp-float {
+                width: 55px;
+                height: 55px;
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .whatsapp-float i {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Indicateur de chargement -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>Chargement de votre contenu...</p>
+    </div>
+    
+    <!-- Conteneur Canva -->
+    <div class="canva-container">
+        <iframe 
+            class="canva-iframe" 
+            src="https://www.canva.com/design/DAG8b8JEgBw/duJS3vqaYOTGoBZPtENbew/view?embed" 
+            allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            loading="eager"
+            title="Landing Page Canva"
+        ></iframe>
+    </div>
+    
+    <!-- Bouton Plein Écran -->
+    <div class="fullscreen-btn" id="fullscreenBtn" title="Plein écran">
+        <i class="fas fa-expand"></i>
+    </div>
+    
+    <!-- Bouton WhatsApp avec améliorations -->
+    <a href="https://wa.me/212710481785?text=Bonjour,%20je%20suis%20intéressé%20par%20vos%20services" 
+       class="whatsapp-float" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       aria-label="Contacter sur WhatsApp">
+       
+        <i class="fab fa-whatsapp"></i>
+        <div class="whatsapp-badge">1</div>
+        <div class="whatsapp-tooltip">Contactez-nous sur WhatsApp</div>
+    </a>
+    
+    <script>
+        // Optimisations de performance
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.getElementById('loader');
+            const iframe = document.querySelector('.canva-iframe');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            
+            // Cacher le loader quand l'iframe est chargée
+            iframe.addEventListener('load', function() {
+                // Petit délai pour un effet plus fluide
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    
+                    // Enregistrer l'événement de chargement dans les analytics
+                    console.log('Canva iframe chargée avec succès');
+                }, 500);
+            });
+            
+            // Gestion du mode plein écran
+            fullscreenBtn.addEventListener('click', function() {
+                const container = document.querySelector('.canva-container');
+                
+                if (!document.fullscreenElement) {
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    }
+                    
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                    fullscreenBtn.title = "Quitter le plein écran";
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.title = "Plein écran";
+                }
+            });
+            
+            // Mettre à jour l'icône du bouton plein écran lors du changement
+            document.addEventListener('fullscreenchange', updateFullscreenIcon);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+            document.addEventListener('msfullscreenchange', updateFullscreenIcon);
+            
+            function updateFullscreenIcon() {
+                if (document.fullscreenElement || 
+                    document.webkitFullscreenElement || 
+                    document.msFullscreenElement) {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                    fullscreenBtn.title = "Quitter le plein écran";
+                } else {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.title = "Plein écran";
+                }
+            }
+            
+            // Animation du badge WhatsApp
+            const whatsappBadge = document.querySelector('.whatsapp-badge');
+            setInterval(() => {
+                whatsappBadge.style.animation = 'none';
+                setTimeout(() => {
+                    whatsappBadge.style.animation = 'badge-pulse 1.5s infinite';
+                }, 10);
+            }, 5000);
+            
+            // Préchargement des ressources
+            const link = document.createElement('link');
+            link.rel = 'preconnect';
+            link.href = 'https://www.canva.com';
+            document.head.appendChild(link);
+            
+            // Optimisation pour mobile - désactiver certaines animations si nécessaire
+            if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                // Ajustements pour les appareils tactiles
+                const whatsappBtn = document.querySelector('.whatsapp-float');
+                whatsappBtn.style.animation = 'pulse 2s ease-in-out infinite';
+            }
+        });
+        
+        // Gestion des erreurs de chargement
+        window.addEventListener('error', function(e) {
+            console.error('Erreur de chargement:', e.message);
+            const loader = document.getElementById('loader');
+            loader.innerHTML = `
+                <div style="text-align: center; color: #ff4757;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                    <p>Erreur de chargement du contenu</p>
+                    <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: #25D366; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Réessayer
+                    </button>
+                </div>
+            `;
+        }, true);
+    </script>
+</body>
+</html>
