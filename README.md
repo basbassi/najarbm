@@ -1,2 +1,2 @@
 # najarbm
-anding page
+Landing page
